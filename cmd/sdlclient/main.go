@@ -11,7 +11,6 @@ import (
 	"github.com/project-midgard/midgarts/internal/character/jobspriteid"
 	"github.com/project-midgard/midgarts/internal/character/statetype"
 	"github.com/project-midgard/midgarts/internal/entity"
-	"github.com/project-midgard/midgarts/internal/fileformat/gat"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/graphic/caching"
 	"github.com/project-midgard/midgarts/internal/opengl"
@@ -93,15 +92,15 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to load grf file")
 	}
 
-	e, err := grfFile.GetEntry("data/izlude.gat")
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to get gat entry")
-	}
-	groundAltitude, err := gat.Load(e.Data)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to load gat")
-	}
-	_ = groundAltitude
+	//e, err := grfFile.GetEntry("data/izlude.gat")
+	//if err != nil {
+	//	log.Fatal().Err(err).Msg("failed to get gat entry")
+	//}
+	//groundAltitude, err := gat.Load(e.Data)
+	//if err != nil {
+	//	log.Fatal().Err(err).Msg("failed to load gat")
+	//}
+	//_ = groundAltitude
 
 	gl.Viewport(0, 0, WindowWidth, WindowHeight)
 
@@ -112,57 +111,57 @@ func main() {
 
 	w := ecs.World{}
 	renderSys := system.NewCharacterRenderSystem(grfFile, caching.NewCachedTextureProvider())
-	actionSystem := system.NewCharacterActionSystem(grfFile)
+	//actionSystem := system.NewCharacterActionSystem(grfFile)
 
 	c1 := entity.NewCharacter(character.Male, jobspriteid.Blacksmith, 23)
-	c1.HasShield = true
-	c2 := entity.NewCharacter(character.Male, jobspriteid.Knight, 22)
-	c2.HasShield = true
-	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 14)
-	c3.HasShield = true
-	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 16)
-	c5 := entity.NewCharacter(character.Male, jobspriteid.Bard, 19)
-	c6 := entity.NewCharacter(character.Female, jobspriteid.MonkH, 27)
-	c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, 30)
-	c8 := entity.NewCharacter(character.Male, jobspriteid.Assassin, 17)
-	c9 := entity.NewCharacter(character.Male, jobspriteid.Monk, 15)
-	c10 := entity.NewCharacter(character.Female, jobspriteid.Wizard, 19)
-	c11 := entity.NewCharacter(character.Female, jobspriteid.Sage, 4)
-	c12 := entity.NewCharacter(character.Female, jobspriteid.Dancer, 16)
-
+	//c1.HasShield = true
+	//c2 := entity.NewCharacter(character.Male, jobspriteid.Knight, 22)
+	//c2.HasShield = true
+	//c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 14)
+	//c3.HasShield = true
+	//c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 16)
+	//c5 := entity.NewCharacter(character.Male, jobspriteid.Bard, 19)
+	//c6 := entity.NewCharacter(character.Female, jobspriteid.MonkH, 27)
+	//c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, 30)
+	//c8 := entity.NewCharacter(character.Male, jobspriteid.Assassin, 17)
+	//c9 := entity.NewCharacter(character.Male, jobspriteid.Monk, 15)
+	//c10 := entity.NewCharacter(character.Female, jobspriteid.Wizard, 19)
+	//c11 := entity.NewCharacter(character.Female, jobspriteid.Sage, 4)
+	//c12 := entity.NewCharacter(character.Female, jobspriteid.Dancer, 16)
+	//
 	c1.SetPosition(mgl32.Vec3{0, 44, -1})
-	c2.SetPosition(mgl32.Vec3{4, 44, 5})
-	c3.SetPosition(mgl32.Vec3{8, 44, 0})
-	c4.SetPosition(mgl32.Vec3{0, 40, 0})
-	c5.SetPosition(mgl32.Vec3{4, 40, 0})
-	c6.SetPosition(mgl32.Vec3{8, 40, 0})
-	c7.SetPosition(mgl32.Vec3{0, 36, 0})
-	c8.SetPosition(mgl32.Vec3{4, 36, 0})
-	c9.SetPosition(mgl32.Vec3{8, 36, 0})
-	c10.SetPosition(mgl32.Vec3{0, 32, 0})
-	c11.SetPosition(mgl32.Vec3{4, 32, 0})
-	c12.SetPosition(mgl32.Vec3{8, 32, 0})
+	//c2.SetPosition(mgl32.Vec3{4, 44, 5})
+	//c3.SetPosition(mgl32.Vec3{8, 44, 0})
+	//c4.SetPosition(mgl32.Vec3{0, 40, 0})
+	//c5.SetPosition(mgl32.Vec3{4, 40, 0})
+	//c6.SetPosition(mgl32.Vec3{8, 40, 0})
+	//c7.SetPosition(mgl32.Vec3{0, 36, 0})
+	//c8.SetPosition(mgl32.Vec3{4, 36, 0})
+	//c9.SetPosition(mgl32.Vec3{8, 36, 0})
+	//c10.SetPosition(mgl32.Vec3{0, 32, 0})
+	//c11.SetPosition(mgl32.Vec3{4, 32, 0})
+	//c12.SetPosition(mgl32.Vec3{8, 32, 0})
 
-	var actionable *system.CharacterActionable
+	//var actionable *system.CharacterActionable
 	var renderable *system.CharacterRenderable
-	w.AddSystemInterface(actionSystem, actionable, nil)
+	//w.AddSystemInterface(actionSystem, actionable, nil)
 	w.AddSystemInterface(renderSys, renderable, nil)
 	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
-	w.AddEntity(c2)
-	w.AddEntity(c3)
-	w.AddEntity(c4)
-	w.AddEntity(c5)
-	w.AddEntity(c6)
-	w.AddEntity(c7)
-	w.AddEntity(c8)
-	w.AddEntity(c9)
-	w.AddEntity(c10)
-	w.AddEntity(c11)
-	w.AddEntity(c12)
+	//w.AddEntity(c2)
+	//w.AddEntity(c3)
+	//w.AddEntity(c4)
+	//w.AddEntity(c5)
+	//w.AddEntity(c6)
+	//w.AddEntity(c7)
+	//w.AddEntity(c8)
+	//w.AddEntity(c9)
+	//w.AddEntity(c10)
+	//w.AddEntity(c11)
+	//w.AddEntity(c12)
 	w.AddEntity(c1)
 
-	//c1.SetState(statetype.StandBy)
+	c1.SetState(statetype.StandBy)
 
 	shouldStop := false
 

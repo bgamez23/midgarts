@@ -14,7 +14,7 @@ import (
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 	graphic2 "github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/internal/system/rendercmd"
-	"log"
+	"github.com/rs/zerolog/log"
 	"math"
 	"strconv"
 	"time"
@@ -52,7 +52,7 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 	s.RenderCommands.sprite = []rendercmd.SpriteRenderCommand{}
 
 	for _, char := range s.characters {
-		s.renderCharacter(dt, char)
+		s.RenderCharacter(dt, char)
 	}
 }
 
@@ -70,7 +70,7 @@ func (s *CharacterRenderSystem) Add(char *entity.Character) {
 		ShieldSpriteName: char.ShieldSpriteName,
 	})
 	if e != nil {
-		log.Fatal(e)
+		log.Fatal().Err(e).Send()
 	}
 
 	char.SetCharacterAttachmentComponent(cmp)
@@ -81,7 +81,7 @@ func (s *CharacterRenderSystem) Remove(e ecs.BasicEntity) {
 	delete(s.characters, strconv.Itoa(int(e.ID())))
 }
 
-func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Character) {
+func (s *CharacterRenderSystem) RenderCharacter(dt float32, char *entity.Character) {
 	offset := [2]float32{0, 0}
 
 	direction := int(char.Direction) + directiontype.DirectionTable[FixedCameraDirection]%8
@@ -89,22 +89,22 @@ func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Charact
 	renderShield := char.HasShield && char.ActionIndex == actionindex.StandBy
 
 	if char.ActionIndex != actionindex.Dead && char.ActionIndex != actionindex.Sitting {
-		s.renderAttachment(dt, char, character.AttachmentShadow, &offset)
+		s.RenderAttachment(dt, char, character.AttachmentShadow, &offset)
 	}
 
 	if behind && renderShield {
-		s.renderAttachment(dt, char, character.AttachmentShield, &offset)
+		s.RenderAttachment(dt, char, character.AttachmentShield, &offset)
 	}
 
-	s.renderAttachment(dt, char, character.AttachmentBody, &offset)
-	s.renderAttachment(dt, char, character.AttachmentHead, &offset)
+	s.RenderAttachment(dt, char, character.AttachmentBody, &offset)
+	s.RenderAttachment(dt, char, character.AttachmentHead, &offset)
 
 	if !behind && renderShield {
-		s.renderAttachment(dt, char, character.AttachmentShield, &offset)
+		s.RenderAttachment(dt, char, character.AttachmentShield, &offset)
 	}
 }
 
-func (s *CharacterRenderSystem) renderAttachment(
+func (s *CharacterRenderSystem) RenderAttachment(
 	dt float32,
 	char *entity.Character,
 	elem character.AttachmentType,
@@ -162,7 +162,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 			continue
 		}
 
-		s.renderLayer(char, layer, char.Files[elem].SPR, position)
+		s.renderLayer(char, elem, layer, char.Files[elem].SPR, position)
 	}
 
 	// Save offset reference
@@ -178,6 +178,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 func (s *CharacterRenderSystem) renderLayer(
 	char *entity.Character,
+	elem character.AttachmentType,
 	layer *act.ActionFrameLayer,
 	spr *spr.SpriteFile,
 	offset [2]float32,
@@ -189,7 +190,7 @@ func (s *CharacterRenderSystem) renderLayer(
 
 	texture, err := s.textureProvider.NewTextureFromRGBA(spr.ImageAt(character.SpriteIndex(frameIndex)))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Send()
 	}
 
 	frame := spr.Frames[frameIndex]
@@ -198,10 +199,20 @@ func (s *CharacterRenderSystem) renderLayer(
 	height *= layer.Scale[1] * SpriteScaleFactor * graphic2.OnePixelSize
 	rot := float64(layer.Angle) * (math.Pi / 180)
 
+	log.Trace().
+		Interface("layer_pos", layer.Position).
+		Interface("corrected_pos", offset).
+		Interface("offset", offset).
+		Msgf("%s", elem)
+
 	offset = [2]float32{
 		(float32(layer.Position[0]) + offset[0]) * graphic2.OnePixelSize,
 		(float32(layer.Position[1]) + offset[1]) * graphic2.OnePixelSize,
 	}
+
+	log.Trace().
+		Interface("offset", offset).
+		Msgf("%s", elem)
 
 	// This is the current API to render a sprite. Commands will
 	// be collected by the lower-level rendering system (OpenGL).
